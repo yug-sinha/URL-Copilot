@@ -1,3 +1,4 @@
+/* globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,33 +7,20 @@
 :root {
   --background: #f9f9f9;
   --text-primary: #222;
-  --user-message: #e5e7eb;  /* Light gray */
-  --bot-message: #2563eb; /* Blue */
+  --user-message: #e5e7eb;
+  --bot-message: #2563eb;
   --bot-text: white;
   --border: #d1d5db;
   --button-primary: #2563eb;
   --button-hover: #1e40af;
 }
 
-/* Full screen layout */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: var(--background);
-  color: var(--text-primary);
-  font-family: "Inter", sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Chat container takes full width/height */
-.chat-container {
-  width: 100%;
-  height: 100%;
+/* Chat Layout */
+.chat-layout {
   display: flex;
   flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
 }
 
 /* Header */
@@ -43,6 +31,17 @@ html, body {
   padding: 12px;
   background: white;
   border-bottom: 2px solid var(--border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Main Content Area */
+.chat-content {
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
 }
 
 /* Chat messages area */
@@ -131,18 +130,4 @@ button:hover {
 
 .new-chat-button:hover {
   transform: scale(1.1);
-}
-
-/* Loading animation */
-.loading-text {
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  color: var(--button-primary);
-  animation: fade 1.5s infinite alternate;
-}
-
-@keyframes fade {
-  0% { opacity: 0.3; }
-  100% { opacity: 1; }
 }

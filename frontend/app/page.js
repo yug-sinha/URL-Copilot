@@ -1,6 +1,8 @@
+// page.js
 "use client";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import Image from 'next/image';
 
 export default function HomePage() {
   const [url, setUrl] = useState("");
@@ -74,53 +76,63 @@ export default function HomePage() {
   };
 
   return (
-    <div className="chat-container">
+    <div className="chat-layout">
       {/* Header */}
-      <div className="chat-header">URL Copilot</div>
-
-      {/* URL Input */}
-      <div className="chat-input">
-        <div className="new-chat-button" onClick={handleNewChat}>+</div>
-        <input
-          type="text"
-          className="flex-1"
-          placeholder="Enter a URL"
-          value={url}
-          disabled={isUrlExtracted}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button onClick={handleExtract} disabled={loadingExtract || isUrlExtracted}>
-          {loadingExtract ? "Extracting..." : "Extract"}
-        </button>
+      <div className="chat-header">
+        <Image src="/logo.jpeg" alt="Logo" width={400} height={100} />
       </div>
 
-      {/* Loading animation */}
-      {loadingExtract && <div className="loading-text">Processing URL...</div>}
-
-      {/* Chat Messages */}
-      <div className="chat-box" ref={chatRef}>
-        {chatHistory.map((chat, idx) => (
-          <div key={idx} className={`message ${chat.sender === "user" ? "user-message" : "bot-message"}`}>
-            <ReactMarkdown>{chat.text}</ReactMarkdown>
-          </div>
-        ))}
-      </div>
-
-      {/* Question Input */}
-      {isUrlExtracted && (
-        <form className="chat-input" onSubmit={handleAsk}>
-          <textarea
+      {/* Main Content */}
+      <div className="chat-content">
+        {/* URL Input */}
+        <div className="chat-input">
+          <div className="new-chat-button" onClick={handleNewChat}>+</div>
+          <input
+            type="text"
             className="flex-1"
-            placeholder="Type your question..."
-            rows={2}
-            value={userQuestion}
-            onChange={(e) => setUserQuestion(e.target.value)}
+            placeholder="Enter a URL"
+            value={url}
+            disabled={isUrlExtracted}
+            onChange={(e) => setUrl(e.target.value)}
           />
-          <button type="submit" disabled={loadingChat}>
-            {loadingChat ? "..." : "Send"}
+          <button onClick={handleExtract} disabled={loadingExtract || isUrlExtracted}>
+            {loadingExtract ? "Extracting..." : "Extract"}
           </button>
-        </form>
-      )}
+        </div>
+
+        {/* Loading animation */}
+        {loadingExtract && <div className="loading-text">Processing URL...</div>}
+
+        {/* Chat Messages */}
+        <div className="chat-box" ref={chatRef}>
+          {chatHistory.map((chat, idx) => (
+            <div key={idx} className={`message ${chat.sender === "user" ? "user-message" : "bot-message"}`}>
+              <ReactMarkdown>{chat.text}</ReactMarkdown>
+            </div>
+          ))}
+        </div>
+
+        {/* Question Input */}
+        {isUrlExtracted && (
+          <form className="chat-input" onSubmit={handleAsk}>
+            <textarea
+              className="flex-1"
+              placeholder="Type your question..."
+              rows={2}
+              value={userQuestion}
+              onChange={(e) => setUserQuestion(e.target.value)}
+            />
+            <button type="submit" disabled={loadingChat}>
+              {loadingChat ? "..." : "Send"}
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="chat-footer">
+        {/* You can add footer content here if needed */}
+      </div>
     </div>
   );
 }
