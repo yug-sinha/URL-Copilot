@@ -1,14 +1,14 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'URL Chatbot',
-  description: 'Chat with data from a URL',
+  title: 'URL Copilot',
+  description: 'Chat with content extracted from URLs',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-black text-gray-200">{children}</body>
     </html>
   );
 }

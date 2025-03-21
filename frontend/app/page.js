@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function HomePage() {
   const [url, setUrl] = useState("");
@@ -11,7 +10,12 @@ export default function HomePage() {
   const [loadingExtract, setLoadingExtract] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
 
-  // 1) Extract context from URL
+  const chatRef = useRef(null);
+
+  useEffect(() => {
+    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+  }, [chatHistory]);
+
   const handleExtract = async () => {
     if (!url) return;
     setLoadingExtract(true);
@@ -35,20 +39,11 @@ export default function HomePage() {
     setLoadingExtract(false);
   };
 
-  // 2) Ask a question using the extracted context
   const handleAsk = async () => {
-    if (!context) {
-      alert("Please extract a URL context first.");
-      return;
-    }
-    if (!userQuestion) return;
+    if (!userQuestion || !context) return;
     setLoadingChat(true);
 
-    // Add user question to chat
-    const newChatHistory = [
-      ...chatHistory,
-      { sender: "user", text: userQuestion },
-    ];
+    const newChatHistory = [...chatHistory, { sender: "user", text: userQuestion }];
     setChatHistory(newChatHistory);
     setUserQuestion("");
 
@@ -59,30 +54,20 @@ export default function HomePage() {
         body: JSON.stringify({ context, question: userQuestion }),
       });
       const data = await res.json();
-      if (data.error) {
-        // Add error as a system message
-        setChatHistory((prev) => [
-          ...prev,
-          { sender: "system", text: `Error: ${data.error}` },
-        ]);
-      } else {
-        // Add Gemini's response as a system message
-        setChatHistory((prev) => [
-          ...prev,
-          { sender: "system", text: data.response },
-        ]);
-      }
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: "system", text: data.response || `Error: ${data.error}` },
+      ]);
     } catch (err) {
-      console.error("Chat error:", err);
       setChatHistory((prev) => [
         ...prev,
         { sender: "system", text: "An error occurred while fetching response." },
       ]);
     }
+
     setLoadingChat(false);
   };
 
-  // 3) Start new chat (reset everything)
   const handleNewChat = () => {
     setUrl("");
     setContext("");
@@ -92,17 +77,17 @@ export default function HomePage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl p-6 space-y-6">
-      {/* Header / Title */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">URL Chatbot</h1>
-      </div>
+    <div className="flex flex-col h-screen">
+      {/* Header */}
+      <header className="p-4 border-b border-gray-700 text-center">
+        <h1 className="text-2xl font-bold tracking-wide">URL Copilot</h1>
+      </header>
 
-      {/* URL Input + Extract Button */}
-      <div className="flex gap-2">
+      {/* URL Input */}
+      <div className="p-4 border-b border-gray-800 bg-gray-950 flex gap-2">
         <input
           type="text"
-          className="flex-1 border rounded p-2"
+          className="flex-1 px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
           placeholder="Enter a URL"
           value={url}
           disabled={isUrlExtracted}
@@ -110,60 +95,61 @@ export default function HomePage() {
         />
         <button
           onClick={handleExtract}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           disabled={loadingExtract || isUrlExtracted}
+          className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
         >
-          {loadingExtract ? "Extracting..." : "Extract Context"}
+          {loadingExtract ? "Extracting..." : "Extract"}
         </button>
         <button
           onClick={handleNewChat}
-          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
         >
           New Chat
         </button>
       </div>
 
-      {/* Chat Messages */}
-      <div className="border rounded p-4 h-[400px] overflow-auto bg-white">
-        {chatHistory.map((chat, idx) => {
-          return (
+      {/* Chat Section */}
+      <div
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-black"
+        ref={chatRef}
+      >
+        {chatHistory.map((chat, idx) => (
+          <div
+            key={idx}
+            className={`flex ${chat.sender === "user" ? "justify-end" : "justify-start"}`}
+          >
             <div
-              key={idx}
-              className={`mb-3 flex ${
-                chat.sender === "user" ? "justify-end" : "justify-start"
+              className={`px-4 py-2 rounded-lg max-w-lg ${
+                chat.sender === "user"
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-700 text-white"
               }`}
             >
-              <div
-                className={`max-w-[70%] p-3 rounded-lg ${
-                  chat.sender === "user"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-black"
-                }`}
-              >
-                <span>{chat.text}</span>
-              </div>
+              {chat.text}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* Question Input + Ask Button */}
-      <div className="flex gap-2">
-        <textarea
-          className="flex-1 border rounded p-2"
-          placeholder="Ask a question"
-          rows={3}
-          value={userQuestion}
-          onChange={(e) => setUserQuestion(e.target.value)}
-        />
-        <button
-          onClick={handleAsk}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          disabled={loadingChat}
-        >
-          {loadingChat ? "Loading..." : "Ask Gemini"}
-        </button>
-      </div>
-    </main>
+      {/* Input Section */}
+      {isUrlExtracted && (
+        <div className="p-4 bg-gray-950 border-t border-gray-800 flex gap-2">
+          <textarea
+            className="flex-1 resize-none px-3 py-2 rounded bg-gray-800 text-white border border-gray-700"
+            placeholder="Type your question..."
+            rows={2}
+            value={userQuestion}
+            onChange={(e) => setUserQuestion(e.target.value)}
+          />
+          <button
+            onClick={handleAsk}
+            className="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-600"
+            disabled={loadingChat}
+          >
+            {loadingChat ? "..." : "Send"}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
