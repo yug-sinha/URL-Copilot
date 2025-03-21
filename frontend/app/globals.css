@@ -35,6 +35,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box; /* Add this line */
 }
 
 /* URL Input Area */
@@ -43,16 +44,19 @@
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  box-sizing: border-box; /* Add this line */
+  width: 100%; /* Add this line */
 }
 
 /* Chat messages area */
 .chat-box {
   flex: 1;
   overflow-y: auto;
-  padding: 20px; /* Increased padding for space */
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box; /* Include padding in width/height */
+  box-sizing: border-box;
+  width: 100%;/* Add this line */
 }
 
 /* User & bot messages */
@@ -62,6 +66,7 @@
   border-radius: 12px;
   margin-bottom: 10px;
   word-break: break-word;
+  box-sizing: border-box; /* Add this line */
 }
 
 .user-message {
@@ -86,6 +91,8 @@
   align-items: center;
   padding: 10px;
   gap: 10px;
+  box-sizing: border-box; /* Add this line */
+  width: 100%;/* Add this line */
 }
 
 /* Input field */
@@ -97,7 +104,8 @@ textarea, .url-input {
   background: white;
   resize: none;
   font-size: 16px;
-  font-family: sans-serif; /* Changed font */
+  font-family: sans-serif;
+  box-sizing: border-box; /* Add this line */
 }
 
 /* Buttons */

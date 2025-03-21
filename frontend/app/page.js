@@ -1,8 +1,7 @@
-// page.js
 "use client";
+
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import Image from 'next/image';
 
 export default function HomePage() {
   const [url, setUrl] = useState("");
@@ -13,12 +12,17 @@ export default function HomePage() {
   const [loadingExtract, setLoadingExtract] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
 
-  const chatRef = useRef(null);
+  const chatBoxRef = useRef(null);
 
   useEffect(() => {
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    // Scroll to bottom when chatHistory updates
+    chatBoxRef.current?.scrollTo({
+      top: chatBoxRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [chatHistory]);
 
+  // Extract content from URL
   const handleExtract = async () => {
     if (!url) return;
     setLoadingExtract(true);
@@ -36,16 +40,22 @@ export default function HomePage() {
         setIsUrlExtracted(true);
       }
     } catch (err) {
+      console.error("Extract error:", err);
       alert("An error occurred while extracting context.");
     }
     setLoadingExtract(false);
   };
 
-  const handleAsk = async (e) => {
-    e.preventDefault();
-    if (!userQuestion || !context) return;
+  // Send a question to the chatbot
+  const handleAsk = async () => {
+    if (!context) {
+      alert("Please extract a URL context first.");
+      return;
+    }
+    if (!userQuestion) return;
     setLoadingChat(true);
 
+    // Add user message
     setChatHistory([...chatHistory, { sender: "user", text: userQuestion }]);
     setUserQuestion("");
 
@@ -56,17 +66,28 @@ export default function HomePage() {
         body: JSON.stringify({ context, question: userQuestion }),
       });
       const data = await res.json();
+      if (data.error) {
+        setChatHistory((prev) => [
+          ...prev,
+          { sender: "bot", text: `Error: ${data.error}` },
+        ]);
+      } else {
+        setChatHistory((prev) => [
+          ...prev,
+          { sender: "bot", text: data.response },
+        ]);
+      }
+    } catch (err) {
+      console.error("Chat error:", err);
       setChatHistory((prev) => [
         ...prev,
-        { sender: "bot", text: data.response || `Error: ${data.error}` },
+        { sender: "bot", text: "An error occurred." },
       ]);
-    } catch (err) {
-      setChatHistory((prev) => [...prev, { sender: "bot", text: "An error occurred." }]);
     }
-
     setLoadingChat(false);
   };
 
+  // Start new chat
   const handleNewChat = () => {
     setUrl("");
     setContext("");
@@ -76,15 +97,15 @@ export default function HomePage() {
   };
 
   return (
-    <div className="chat-layout">
+    <div className="flex flex-col h-screen bg-gray-100">
       {/* Header */}
-      <div className="chat-header">
-        <Image src="/logo.jpeg" alt="Logo" width={430} height={160} />
-      </div>
+      <header className="chat-header">
+        URL Copilot
+      </header>
 
-      {/* URL Input */}
+      {/* URL input area */}
       <div className="url-input-area">
-        <div className="chat-input">
+        <div className="flex items-center gap-2">
           <input
             type="text"
             className="url-input"
@@ -93,47 +114,59 @@ export default function HomePage() {
             disabled={isUrlExtracted}
             onChange={(e) => setUrl(e.target.value)}
           />
-          <button onClick={handleExtract} disabled={loadingExtract || isUrlExtracted}>
-            {loadingExtract ? "Extracting..." : "Extract"}
+          <button
+            onClick={handleExtract}
+            disabled={loadingExtract || isUrlExtracted}
+          >
+            {loadingExtract ? "Processing..." : "Extract"}
           </button>
         </div>
-        {loadingExtract && <div className="loading-text">Processing URL...</div>}
       </div>
 
-      {/* Main Content */}
-      <div className="chat-content">
-        {/* Chat Messages */}
-        <div className="chat-box" ref={chatRef}>
-          {chatHistory.map((chat, idx) => (
-            <div key={idx} className={`message ${chat.sender === "user" ? "user-message" : "bot-message"}`}>
+      {/* Chat messages area */}
+      <div className="chat-box" ref={chatBoxRef}>
+        {chatHistory.length === 0 ? (
+          <p className="text-center text-gray-400">Start a conversation...</p>
+        ) : (
+          chatHistory.map((chat, idx) => (
+            <div
+              key={idx}
+              className={`message ${
+                chat.sender === "user" ? "user-message" : "bot-message"
+              }`}
+            >
               <ReactMarkdown>{chat.text}</ReactMarkdown>
             </div>
-          ))}
-        </div>
-
-        {/* Question Input */}
-        {isUrlExtracted && (
-          <form className="question-input-area" onSubmit={handleAsk}>
-            <div className="chat-input question-input">
-              <div className="new-chat-button" onClick={handleNewChat}>+</div>
-              <textarea
-                className="question-textarea"
-                placeholder="Type your question..."
-                rows={2}
-                value={userQuestion}
-                onChange={(e) => setUserQuestion(e.target.value)}
-              />
-              <button type="submit" disabled={loadingChat} className="send-button">
-                {loadingChat ? "..." : "↑"}
-              </button>
-            </div>
-          </form>
+          ))
         )}
       </div>
 
-      {/* Footer */}
-      <div className="chat-footer">
-        {/* You can add footer content here if needed */}
+      {/* Chat input pinned at bottom */}
+      <div className="chat-input">
+        {/* New Chat Button */}
+        <div className="new-chat-button" onClick={handleNewChat}>
+          +
+        </div>
+
+        {/* Textarea for user question */}
+        <textarea
+          className="flex-1"
+          placeholder="Type your question..."
+          rows={1}
+          value={userQuestion}
+          onChange={(e) => setUserQuestion(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleAsk();
+            }
+          }}
+        />
+
+        {/* Send button */}
+        <button onClick={handleAsk} disabled={loadingChat}>
+          {loadingChat ? "Sending..." : "Send"}
+        </button>
       </div>
     </div>
   );
