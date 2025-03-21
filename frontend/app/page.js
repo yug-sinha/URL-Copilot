@@ -15,14 +15,12 @@ export default function HomePage() {
   const chatBoxRef = useRef(null);
 
   useEffect(() => {
-    // Scroll to bottom when chatHistory updates
     chatBoxRef.current?.scrollTo({
       top: chatBoxRef.current.scrollHeight,
       behavior: "smooth",
     });
   }, [chatHistory]);
 
-  // Extract content from URL
   const handleExtract = async () => {
     if (!url) return;
     setLoadingExtract(true);
@@ -46,7 +44,6 @@ export default function HomePage() {
     setLoadingExtract(false);
   };
 
-  // Send a question to the chatbot
   const handleAsk = async () => {
     if (!context) {
       alert("Please extract a URL context first.");
@@ -55,7 +52,6 @@ export default function HomePage() {
     if (!userQuestion) return;
     setLoadingChat(true);
 
-    // Add user message
     setChatHistory([...chatHistory, { sender: "user", text: userQuestion }]);
     setUserQuestion("");
 
@@ -87,7 +83,6 @@ export default function HomePage() {
     setLoadingChat(false);
   };
 
-  // Start new chat
   const handleNewChat = () => {
     setUrl("");
     setContext("");
@@ -98,13 +93,18 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      {/* Header */}
-      <header className="chat-header">
-        URL Copilot
-      </header>
+    <header className="chat-header flex items-center justify-center bg-white shadow p-4" style={{ height: '20vh' }}>
+        <div className="flex items-center">
+            <img
+                src="/logo.jpeg"
+                alt="URL Copilot Logo"
+                className="object-contain mr-4"
+                style={{ maxHeight: '40%', maxWidth: '50%' }} // Adjusted logo size
+            />
+        </div>
+    </header>
 
-      {/* URL input area */}
-      <div className="url-input-area">
+      <div className="url-input-area flex items-center justify-center p-4">
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -123,10 +123,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Chat messages area */}
-      <div className="chat-box" ref={chatBoxRef}>
+      <div className="chat-box flex-1 overflow-y-auto" ref={chatBoxRef}>
         {chatHistory.length === 0 ? (
-          <p className="text-center text-gray-400">Start a conversation...</p>
+          <p className="text-center text-gray-400 mt-4">Start a conversation...</p>
         ) : (
           chatHistory.map((chat, idx) => (
             <div
@@ -141,14 +140,11 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Chat input pinned at bottom */}
       <div className="chat-input">
-        {/* New Chat Button */}
         <div className="new-chat-button" onClick={handleNewChat}>
           +
         </div>
 
-        {/* Textarea for user question */}
         <textarea
           className="flex-1"
           placeholder="Type your question..."
@@ -163,7 +159,6 @@ export default function HomePage() {
           }}
         />
 
-        {/* Send button */}
         <button onClick={handleAsk} disabled={loadingChat}>
           {loadingChat ? "Sending..." : "Send"}
         </button>
