@@ -79,17 +79,15 @@ export default function HomePage() {
     <div className="chat-layout">
       {/* Header */}
       <div className="chat-header">
-        <Image src="/logo.jpeg" alt="Logo" width={400} height={100} />
+        <Image src="/logo.jpeg" alt="Logo" width={430} height={160} />
       </div>
 
-      {/* Main Content */}
-      <div className="chat-content">
-        {/* URL Input */}
+      {/* URL Input */}
+      <div className="url-input-area">
         <div className="chat-input">
-          <div className="new-chat-button" onClick={handleNewChat}>+</div>
           <input
             type="text"
-            className="flex-1"
+            className="url-input"
             placeholder="Enter a URL"
             value={url}
             disabled={isUrlExtracted}
@@ -99,10 +97,11 @@ export default function HomePage() {
             {loadingExtract ? "Extracting..." : "Extract"}
           </button>
         </div>
-
-        {/* Loading animation */}
         {loadingExtract && <div className="loading-text">Processing URL...</div>}
+      </div>
 
+      {/* Main Content */}
+      <div className="chat-content">
         {/* Chat Messages */}
         <div className="chat-box" ref={chatRef}>
           {chatHistory.map((chat, idx) => (
@@ -114,17 +113,20 @@ export default function HomePage() {
 
         {/* Question Input */}
         {isUrlExtracted && (
-          <form className="chat-input" onSubmit={handleAsk}>
-            <textarea
-              className="flex-1"
-              placeholder="Type your question..."
-              rows={2}
-              value={userQuestion}
-              onChange={(e) => setUserQuestion(e.target.value)}
-            />
-            <button type="submit" disabled={loadingChat}>
-              {loadingChat ? "..." : "Send"}
-            </button>
+          <form className="question-input-area" onSubmit={handleAsk}>
+            <div className="chat-input question-input">
+              <div className="new-chat-button" onClick={handleNewChat}>+</div>
+              <textarea
+                className="question-textarea"
+                placeholder="Type your question..."
+                rows={2}
+                value={userQuestion}
+                onChange={(e) => setUserQuestion(e.target.value)}
+              />
+              <button type="submit" disabled={loadingChat} className="send-button">
+                {loadingChat ? "..." : "↑"}
+              </button>
+            </div>
           </form>
         )}
       </div>
