@@ -4,6 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 export default function HomePage() {
+  // Fetch URLs from environment variables (with fallback values)
+  const EXTRACT_API_URL =
+    process.env.NEXT_PUBLIC_EXTRACT_API_URL || "http://localhost:8002/extract";
+  const CHAT_API_URL =
+    process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:8002/chat";
+
   const [url, setUrl] = useState("");
   const [context, setContext] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
@@ -31,13 +37,13 @@ export default function HomePage() {
     // Start with first extraction message
     setExtractionMessage("Processing your URL...");
 
-    // After 3 seconds, if still loading, update message
+    // After 2 seconds, if still loading, update message
     const timerId = setTimeout(() => {
       setExtractionMessage("your website is getting extracted...");
-    }, 3000);
+    }, 2000);
 
     try {
-      const res = await fetch("http://localhost:8002/extract", {
+      const res = await fetch(EXTRACT_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
@@ -78,7 +84,7 @@ export default function HomePage() {
     setUserQuestion("");
 
     try {
-      const res = await fetch("http://localhost:8002/chat", {
+      const res = await fetch(CHAT_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ context, question: userQuestion }),
@@ -131,26 +137,25 @@ export default function HomePage() {
           paddingRight: "2rem",
         }}
       >
-        {/* Logo with variable margin to the right (in vw) */}
+        {/* Logo with a responsive gap */}
         <img
           src="/logo.jpeg"
           alt="URL Copilot Logo"
           style={{
-            height: "70%",   // bigger in the 20vh header
+            height: "70%", // adjusts within the 20vh header
             width: "auto",
-            marginRight: "20vw", // 5% of viewport width for variable gap
+            marginRight: "20vw", // variable gap based on viewport width
           }}
         />
 
-        {/* URL Input, Extract Button, and Extraction Message in a row,
-            wrapping if the screen is too narrow. */}
+        {/* URL Input, Extract Button, and Extraction Message */}
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",    // allows wrapping on small screens
+            flexWrap: "wrap", // allows wrapping on small screens
             alignItems: "center",
             gap: "1rem",
-            whiteSpace: "normal", // allow line breaks if needed
+            whiteSpace: "normal",
           }}
         >
           <input
@@ -186,7 +191,7 @@ export default function HomePage() {
       {/* Middle Content (60% of viewport, scrollable) */}
       <main
         style={{
-          marginTop: "20vh",   // clear header
+          marginTop: "20vh", // clear header
           marginBottom: "20vh", // clear footer
           height: "60vh",
           overflowY: "auto",
