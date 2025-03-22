@@ -12,13 +12,14 @@ export default function HomePage() {
   const [loadingExtract, setLoadingExtract] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
 
+  // Reference for the chat messages container
   const chatBoxRef = useRef(null);
 
+  // Scroll to bottom whenever chatHistory updates
   useEffect(() => {
-    chatBoxRef.current?.scrollTo({
-      top: chatBoxRef.current.scrollHeight,
-      behavior: "smooth",
-    });
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
   }, [chatHistory]);
 
   const handleExtract = async () => {
@@ -51,8 +52,10 @@ export default function HomePage() {
     }
     if (!userQuestion) return;
     setLoadingChat(true);
-
-    setChatHistory([...chatHistory, { sender: "user", text: userQuestion }]);
+    setChatHistory((prev) => [
+      ...prev,
+      { sender: "user", text: userQuestion },
+    ]);
     setUserQuestion("");
 
     try {
@@ -92,61 +95,99 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
-    <header className="chat-header flex items-center justify-center bg-white shadow p-4" style={{ height: '20vh' }}>
+    <div className="relative min-h-screen bg-gray-100">
+      {/* Fixed Header (20% of viewport) */}
+      <header
+        className="chat-header bg-white shadow p-4 flex items-center justify-center"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "20vh",
+          zIndex: 100,
+        }}
+      >
         <div className="flex items-center">
-            <img
-                src="/logo.jpeg"
-                alt="URL Copilot Logo"
-                className="object-contain mr-4"
-                style={{ maxHeight: '40%', maxWidth: '50%' }} // Adjusted logo size
-            />
-        </div>
-    </header>
-
-      <div className="url-input-area flex items-center justify-center p-4">
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            className="url-input"
-            placeholder="Enter a URL"
-            value={url}
-            disabled={isUrlExtracted}
-            onChange={(e) => setUrl(e.target.value)}
+          <img
+            src="/logo.jpeg"
+            alt="URL Copilot Logo"
+            className="object-contain mr-4"
+            style={{ maxHeight: "22%", maxWidth: "35%" }}
           />
-          <button
-            onClick={handleExtract}
-            disabled={loadingExtract || isUrlExtracted}
-          >
-            {loadingExtract ? "Processing..." : "Extract"}
-          </button>
         </div>
-      </div>
+      </header>
 
-      <div className="chat-box flex-1 overflow-y-auto" ref={chatBoxRef}>
-        {chatHistory.length === 0 ? (
-          <p className="text-center text-gray-400 mt-4">Start a conversation...</p>
-        ) : (
-          chatHistory.map((chat, idx) => (
-            <div
-              key={idx}
-              className={`message ${
-                chat.sender === "user" ? "user-message" : "bot-message"
-              }`}
+      {/* Middle Content (60% of viewport, scrollable) */}
+      <main
+        style={{
+          marginTop: "20vh",    // clear header
+          marginBottom: "20vh", // clear footer
+          height: "60vh",
+          overflowY: "auto",
+        }}
+      >
+        {/* URL Input Area */}
+        <div className="url-input-area flex items-center justify-center p-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              className="url-input"
+              placeholder="Enter a URL"
+              value={url}
+              disabled={isUrlExtracted}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+            <button
+              onClick={handleExtract}
+              disabled={loadingExtract || isUrlExtracted}
             >
-              <ReactMarkdown>{chat.text}</ReactMarkdown>
-            </div>
-          ))
-        )}
-      </div>
+              {loadingExtract ? "Processing..." : "Extract"}
+            </button>
+          </div>
+        </div>
 
-      <div className="chat-input">
-        <div className="new-chat-button" onClick={handleNewChat}>
+        {/* Chat Messages */}
+        <div
+          className="chat-box px-4 pb-4 flex flex-col"
+          ref={chatBoxRef}
+          style={{ flex: 1 }}
+        >
+          {chatHistory.length === 0 ? (
+            <p className="text-center text-gray-400 mt-4">
+            </p>
+          ) : (
+            chatHistory.map((chat, idx) => (
+              <div
+                key={idx}
+                className={`message ${
+                  chat.sender === "user" ? "user-message" : "bot-message"
+                }`}
+              >
+                <ReactMarkdown>{chat.text}</ReactMarkdown>
+              </div>
+            ))
+          )}
+        </div>
+      </main>
+
+      {/* Fixed Footer (Chat Input, 20% of viewport) */}
+      <footer
+        className="chat-input bg-white flex items-center"
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "20vh",
+          zIndex: 100,
+        }}
+      >
+        <div className="new-chat-button ml-4" onClick={handleNewChat}>
           +
         </div>
-
         <textarea
-          className="flex-1"
+          className="flex-1 m-4"
           placeholder="Type your question..."
           rows={1}
           value={userQuestion}
@@ -158,11 +199,10 @@ export default function HomePage() {
             }
           }}
         />
-
-        <button onClick={handleAsk} disabled={loadingChat}>
+        <button className="mr-4" onClick={handleAsk} disabled={loadingChat}>
           {loadingChat ? "Sending..." : "Send"}
         </button>
-      </div>
+      </footer>
     </div>
   );
 }
