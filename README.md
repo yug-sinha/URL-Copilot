@@ -130,7 +130,3 @@ Response:
 Production defaults to relative paths (`/extract`, `/chat`).
 
 ---
-
-## 📜 License
-
-MIT © Your Name
