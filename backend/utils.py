@@ -117,7 +117,19 @@ def ask_gemini(model, context, question):
     logger.info(f"Sending to Gemini. Prompt length: {len(context)} chars")
     try:
         chat = model.start_chat(history=[])
-        prompt = f"Context:\n{context}\n\nQuestion:\n{question}"
+        prompt = f"""
+        You are an URL Copilot, an AI assistant that answers questions strictly using the text extracted from a web page. 
+        Use only the provided context — do NOT invent or assume information not present. 
+        If the answer cannot be found in the context, respond with “I'm sorry, the provided website didn't have that information.”
+
+        Context:
+        {context}
+
+        Question:
+        {question}
+
+        Answer (concise, factual):
+        """
         return chat.send_message(prompt).text
     except InvalidArgument:
         logger.error("Invalid Gemini API key")
