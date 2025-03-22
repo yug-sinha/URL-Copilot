@@ -1,2 +1,2 @@
-sudobuild -t url-chatbot-backend .
-sudorun -p 8002:8002 --env-file backend/.env url-chatbot-backend
+sudo docker build -t url-chatbot .
+docker run -p 80:8002 url-chatbot
