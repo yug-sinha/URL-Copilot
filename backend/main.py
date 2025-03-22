@@ -43,3 +43,7 @@ def chat_with_url(data: ChatInput):
     logger.info(f"Received chat request. Question: {data.question}")
     response = ask_gemini(gemini, data.context, data.question)
     return {"response": response}
+
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
