@@ -131,25 +131,26 @@ export default function HomePage() {
           paddingRight: "2rem",
         }}
       >
-        {/* Logo with increased marginRight to add a bigger gap */}
+        {/* Logo with variable margin to the right (in vw) */}
         <img
           src="/logo.jpeg"
           alt="URL Copilot Logo"
           style={{
-            height: "70%",  // bigger in the 20vh header
+            height: "70%",   // bigger in the 20vh header
             width: "auto",
-            marginRight: "19rem", // increase gap between logo and URL section
+            marginRight: "20vw", // 5% of viewport width for variable gap
           }}
         />
 
-        {/* URL Input, Extract Button, and Extraction Message in a row */}
+        {/* URL Input, Extract Button, and Extraction Message in a row,
+            wrapping if the screen is too narrow. */}
         <div
           style={{
             display: "flex",
-            flexWrap: "nowrap",
+            flexWrap: "wrap",    // allows wrapping on small screens
             alignItems: "center",
             gap: "1rem",
-            whiteSpace: "nowrap",
+            whiteSpace: "normal", // allow line breaks if needed
           }}
         >
           <input
@@ -185,7 +186,7 @@ export default function HomePage() {
       {/* Middle Content (60% of viewport, scrollable) */}
       <main
         style={{
-          marginTop: "20vh",  // clear header
+          marginTop: "20vh",   // clear header
           marginBottom: "20vh", // clear footer
           height: "60vh",
           overflowY: "auto",
