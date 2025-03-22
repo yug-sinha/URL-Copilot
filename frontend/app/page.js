@@ -127,19 +127,18 @@ export default function HomePage() {
           right: 0,
           height: "20vh",
           zIndex: 100,
-          // Adjust side padding so things shift more to the left
           paddingLeft: "2rem",
           paddingRight: "2rem",
         }}
       >
-        {/* Logo bigger on large screens by setting a relative height */}
+        {/* Logo with increased marginRight to add a bigger gap */}
         <img
           src="/logo.jpeg"
           alt="URL Copilot Logo"
           style={{
-            height: "70%",  // make the logo taller within the 20vh header
-            width: "auto",  // maintain aspect ratio
-            marginRight: "2rem",
+            height: "70%",  // bigger in the 20vh header
+            width: "auto",
+            marginRight: "19rem", // increase gap between logo and URL section
           }}
         />
 
