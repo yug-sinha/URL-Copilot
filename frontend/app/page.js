@@ -22,14 +22,14 @@ export default function HomePage() {
   // Reference for the chat messages container
   const chatBoxRef = useRef(null);
 
-  // Scroll to bottom whenever chatHistory updates
+  // Always scroll to bottom when chatHistory updates
   useEffect(() => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
     }
   }, [chatHistory]);
 
-  // Handle extracting the URL
+  // Extract URL
   const handleExtract = async () => {
     if (!url) return;
     setLoadingExtract(true);
@@ -77,10 +77,9 @@ export default function HomePage() {
     if (!userQuestion) return;
 
     setLoadingChat(true);
-    setChatHistory((prev) => [
-      ...prev,
-      { sender: "user", text: userQuestion },
-    ]);
+
+    // Add user message to chat
+    setChatHistory((prev) => [...prev, { sender: "user", text: userQuestion }]);
     setUserQuestion("");
 
     try {
@@ -137,7 +136,7 @@ export default function HomePage() {
           paddingRight: "2rem",
         }}
       >
-        {/* Logo with a responsive gap */}
+        {/* Logo */}
         <img
           src="/logo.jpeg"
           alt="URL Copilot Logo"
@@ -199,7 +198,7 @@ export default function HomePage() {
       >
         {/* Chat Messages */}
         <div
-          className="chat-box px-4 pb-4 flex flex-col"
+          className="chat-box flex flex-col px-4 pb-4"
           ref={chatBoxRef}
           style={{ flex: 1 }}
         >
@@ -220,7 +219,7 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* Fixed Footer (Chat Input, 20% of viewport) */}
+      {/* Fixed Footer (20% height) */}
       <footer
         className="chat-input bg-white flex items-center"
         style={{

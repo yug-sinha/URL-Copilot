@@ -50,29 +50,35 @@
 
 /* Chat messages area (the middle container) */
 .chat-box {
-  /* We'll control height/scroll in inline styles now */
+  display: flex;
+  flex-direction: column; /* ensure align-self works on children */
   box-sizing: border-box;
+  /* We handle overflow/height in inline styles in page.js */
 }
 
-/* User & bot messages */
+/* Updated Message Styling for Auto-Fitting Message Boxes */
 .message {
-  max-width: 75%;
+  display: inline-block; /* shrink to fit content horizontally */
+  width: fit-content;    /* auto-fit width based on content */
+  max-width: 75%;        /* limit to 75% of container to avoid wide bubbles */
   padding: 10px;
   border-radius: 12px;
-  margin-bottom: 10px;
+  margin: 5px 0;
   word-break: break-word;
   box-sizing: border-box;
 }
 
+/* User messages: align to the right */
 .user-message {
   background: var(--user-message);
-  align-self: flex-end;
+  align-self: flex-end; /* push bubble to the right side */
 }
 
+/* Bot messages: align to the left */
 .bot-message {
   background: var(--bot-message);
   color: var(--bot-text);
-  align-self: flex-start;
+  align-self: flex-start; /* push bubble to the left side */
 }
 
 /* Markdown styling */
