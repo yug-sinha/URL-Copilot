@@ -11,6 +11,7 @@ export default function HomePage() {
   const [isUrlExtracted, setIsUrlExtracted] = useState(false);
   const [loadingExtract, setLoadingExtract] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [extractionMessage, setExtractionMessage] = useState("");
 
   // Reference for the chat messages container
   const chatBoxRef = useRef(null);
@@ -22,9 +23,19 @@ export default function HomePage() {
     }
   }, [chatHistory]);
 
+  // Handle extracting the URL
   const handleExtract = async () => {
     if (!url) return;
     setLoadingExtract(true);
+
+    // Start with first extraction message
+    setExtractionMessage("Processing your URL...");
+
+    // After 3 seconds, if still loading, update message
+    const timerId = setTimeout(() => {
+      setExtractionMessage("Please wait, your website is getting extracted...");
+    }, 3000);
+
     try {
       const res = await fetch("http://localhost:8002/extract", {
         method: "POST",
@@ -32,25 +43,33 @@ export default function HomePage() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
+      clearTimeout(timerId);
+
       if (data.error) {
         alert(`Extraction Error: ${data.error}`);
+        setExtractionMessage("");
       } else {
         setContext(data.text);
         setIsUrlExtracted(true);
+        setExtractionMessage("Successfully extracted. Start your conversation now.");
       }
     } catch (err) {
+      clearTimeout(timerId);
       console.error("Extract error:", err);
       alert("An error occurred while extracting context.");
+      setExtractionMessage("");
     }
     setLoadingExtract(false);
   };
 
+  // Handle asking a question
   const handleAsk = async () => {
     if (!context) {
       alert("Please extract a URL context first.");
       return;
     }
     if (!userQuestion) return;
+
     setLoadingChat(true);
     setChatHistory((prev) => [
       ...prev,
@@ -86,19 +105,21 @@ export default function HomePage() {
     setLoadingChat(false);
   };
 
+  // Start a new chat
   const handleNewChat = () => {
     setUrl("");
     setContext("");
     setChatHistory([]);
     setUserQuestion("");
     setIsUrlExtracted(false);
+    setExtractionMessage("");
   };
 
   return (
     <div className="relative min-h-screen bg-gray-100">
       {/* Fixed Header (20% of viewport) */}
       <header
-        className="chat-header bg-white shadow p-4 flex items-center justify-center"
+        className="chat-header bg-white shadow flex items-center"
         style={{
           position: "fixed",
           top: 0,
@@ -106,47 +127,71 @@ export default function HomePage() {
           right: 0,
           height: "20vh",
           zIndex: 100,
+          // Adjust side padding so things shift more to the left
+          paddingLeft: "2rem",
+          paddingRight: "2rem",
         }}
       >
-        <div className="flex items-center">
-          <img
-            src="/logo.jpeg"
-            alt="URL Copilot Logo"
-            className="object-contain mr-4"
-            style={{ maxHeight: "22%", maxWidth: "35%" }}
+        {/* Logo bigger on large screens by setting a relative height */}
+        <img
+          src="/logo.jpeg"
+          alt="URL Copilot Logo"
+          style={{
+            height: "70%",  // make the logo taller within the 20vh header
+            width: "auto",  // maintain aspect ratio
+            marginRight: "2rem",
+          }}
+        />
+
+        {/* URL Input, Extract Button, and Extraction Message in a row */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "nowrap",
+            alignItems: "center",
+            gap: "1rem",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <input
+            type="text"
+            className="url-input"
+            placeholder="Enter a URL"
+            value={url}
+            disabled={isUrlExtracted}
+            onChange={(e) => setUrl(e.target.value)}
+            style={{ display: "inline-block" }}
           />
+          <button
+            onClick={handleExtract}
+            disabled={loadingExtract || isUrlExtracted}
+            style={{ display: "inline-block" }}
+          >
+            {loadingExtract ? "Processing..." : "Extract"}
+          </button>
+          {extractionMessage && (
+            <span
+              style={{
+                fontFamily: "monospace",
+                fontSize: "0.9rem",
+                color: "#333",
+              }}
+            >
+              {extractionMessage}
+            </span>
+          )}
         </div>
       </header>
 
       {/* Middle Content (60% of viewport, scrollable) */}
       <main
         style={{
-          marginTop: "20vh",    // clear header
+          marginTop: "20vh",  // clear header
           marginBottom: "20vh", // clear footer
           height: "60vh",
           overflowY: "auto",
         }}
       >
-        {/* URL Input Area */}
-        <div className="url-input-area flex items-center justify-center p-4">
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              className="url-input"
-              placeholder="Enter a URL"
-              value={url}
-              disabled={isUrlExtracted}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-            <button
-              onClick={handleExtract}
-              disabled={loadingExtract || isUrlExtracted}
-            >
-              {loadingExtract ? "Processing..." : "Extract"}
-            </button>
-          </div>
-        </div>
-
         {/* Chat Messages */}
         <div
           className="chat-box px-4 pb-4 flex flex-col"
@@ -154,8 +199,7 @@ export default function HomePage() {
           style={{ flex: 1 }}
         >
           {chatHistory.length === 0 ? (
-            <p className="text-center text-gray-400 mt-4">
-            </p>
+            <p className="text-center text-gray-400 mt-4"></p>
           ) : (
             chatHistory.map((chat, idx) => (
               <div
