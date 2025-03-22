@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1
@@ -15,14 +13,14 @@ RUN apt-get update \
     libxss1 libxtst6 \
  && rm -rf /var/lib/apt/lists/*
 
-COPY backend/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Let Playwright install its own dependencies + Chromium
 RUN playwright install-deps \
  && playwright install chromium
 
-COPY backend/ .
+COPY . .
 
 EXPOSE 8002
 
