@@ -5,10 +5,16 @@ import ReactMarkdown from "react-markdown";
 
 export default function HomePage() {
   // Fetch URLs from environment variables (with fallback values)
-  const EXTRACT_API_URL =
-    process.env.NEXT_PUBLIC_EXTRACT_API_URL || "http://localhost:8002/extract";
-  const CHAT_API_URL =
-    process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:8002/chat";
+  // page.js (top)
+const EXTRACT_API_URL =
+process.env.NODE_ENV === "development"
+  ? process.env.NEXT_PUBLIC_EXTRACT_API_URL
+  : "/extract";
+
+const CHAT_API_URL =
+process.env.NODE_ENV === "development"
+  ? process.env.NEXT_PUBLIC_CHAT_API_URL
+  : "/chat";
 
   const [url, setUrl] = useState("");
   const [context, setContext] = useState("");

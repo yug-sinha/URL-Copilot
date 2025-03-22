@@ -72,6 +72,7 @@
 .user-message {
   background: var(--user-message);
   align-self: flex-end; /* push bubble to the right side */
+  margin-right: 20rem;      /* ← gap between bubble and right edge */
 }
 
 /* Bot messages: align to the left */
@@ -79,6 +80,7 @@
   background: var(--bot-message);
   color: var(--bot-text);
   align-self: flex-start; /* push bubble to the left side */
+  margin-left: 20rem;       /* ← gap between bubble and left edge */
 }
 
 /* Markdown styling */
