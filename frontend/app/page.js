@@ -33,7 +33,7 @@ export default function HomePage() {
 
     // After 3 seconds, if still loading, update message
     const timerId = setTimeout(() => {
-      setExtractionMessage("Please wait, your website is getting extracted...");
+      setExtractionMessage("your website is getting extracted...");
     }, 3000);
 
     try {
@@ -51,7 +51,7 @@ export default function HomePage() {
       } else {
         setContext(data.text);
         setIsUrlExtracted(true);
-        setExtractionMessage("Successfully extracted. Start your conversation now.");
+        setExtractionMessage("Successfully extracted");
       }
     } catch (err) {
       clearTimeout(timerId);
